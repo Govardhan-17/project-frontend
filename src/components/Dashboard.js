@@ -1,39 +1,51 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import { PieChart, Pie, Cell, Tooltip, Legend } from 'recharts';
+import { PieChart, Pie, Cell, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import './Dashboard.css';
+
+const COLORS = ['#00e6b2', '#ff6b6b', '#ffc107', '#36a2eb', '#9c27b0'];
 
 function Dashboard() {
   const [chartData, setChartData] = useState([]);
 
   useEffect(() => {
-    axios.get('http://localhost:5000/chartdata')
+    const token = localStorage.getItem('token');
+    axios.get('http://localhost:5000/chartdata', {
+      headers: { Authorization: `Bearer ${token}` }
+    })
       .then(res => setChartData(res.data))
       .catch(err => console.error(err));
   }, []);
 
-  const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#AF19FF'];
-
   return (
-    <div>
-      <h2>Expense Summary</h2>
-      <PieChart width={400} height={300}>
-        <Pie
-          data={chartData}
-          dataKey="amount"
-          nameKey="category"
-          cx="50%"
-          cy="50%"
-          outerRadius={100}
-          fill="#8884d8"
-          label
-        >
-          {chartData.map((entry, index) => (
-            <Cell key={index} fill={COLORS[index % COLORS.length]} />
-          ))}
-        </Pie>
-        <Tooltip />
-        <Legend />
-      </PieChart>
+    <div className="dashboard-container">
+      <div className="dashboard-card">
+        <h2 className="title">📊 Expense Breakdown</h2>
+        {chartData.length > 0 ? (
+          <ResponsiveContainer width="100%" height={300}>
+            <PieChart>
+              <Pie
+                data={chartData}
+                dataKey="amount"
+                nameKey="category"
+                cx="50%"
+                cy="50%"
+                outerRadius={100}
+                fill="#00e6b2"
+                label
+              >
+                {chartData.map((entry, index) => (
+                  <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                ))}
+              </Pie>
+              <Tooltip />
+              <Legend />
+            </PieChart>
+          </ResponsiveContainer>
+        ) : (
+          <p className="no-data">No chart data available</p>
+        )}
+      </div>
     </div>
   );
 }
