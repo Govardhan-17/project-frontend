@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import axios from 'axios';
-import './AddExpense.css';
 
 function AddExpense() {
   const [expense, setExpense] = useState({
@@ -16,50 +15,23 @@ function AddExpense() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-
-    const token = localStorage.getItem('token');
-
-    axios.post('http://localhost:5000/add_expense', expense, {
-      headers: { Authorization: `Bearer ${token}` }
-    })
-      .then(() => {
+    axios.post('http://localhost:5000/add_expense', expense)
+      .then(res => {
         alert("Expense Added!");
         setExpense({ title: '', amount: '', category: '', date: '' });
       })
-      .catch(err => {
-        console.error(err);
-        alert("Failed to add expense.");
-      });
+      .catch(err => console.error(err));
   };
 
   return (
-    <div className="expense-container">
-      <form className="expense-card" onSubmit={handleSubmit}>
-        <h2 className="title">💸 Add New Expense</h2>
-
-        <div className="input-group">
-          <input type="text" name="title" value={expense.title} onChange={handleChange} required />
-          <label>Title</label>
-        </div>
-
-        <div className="input-group">
-          <input type="number" name="amount" value={expense.amount} onChange={handleChange} required />
-          <label>Amount (₹)</label>
-        </div>
-
-        <div className="input-group">
-          <input type="text" name="category" value={expense.category} onChange={handleChange} required />
-          <label>Category</label>
-        </div>
-
-        <div className="input-group">
-          <input type="date" name="date" value={expense.date} onChange={handleChange} required />
-          <label className="date-label">Date</label>
-        </div>
-
-        <button type="submit" className="submit-btn">➕ Add Expense</button>
-      </form>
-    </div>
+    <form onSubmit={handleSubmit}>
+      <h2>Add Expense</h2>
+      <input name="title" value={expense.title} onChange={handleChange} placeholder="Title" required /><br/>
+      <input name="amount" value={expense.amount} onChange={handleChange} placeholder="Amount" type="number" required /><br/>
+      <input name="category" value={expense.category} onChange={handleChange} placeholder="Category" required /><br/>
+      <input name="date" value={expense.date} onChange={handleChange} type="date" required /><br/>
+      <button type="submit">Add Expense</button>
+    </form>
   );
 }
 
